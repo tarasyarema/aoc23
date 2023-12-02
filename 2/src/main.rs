@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::env;
 use std::fs;
 
@@ -18,7 +19,9 @@ fn main() {
     let mut _games: Vec<[u8; 3]> = Vec::new();
 
     let contraints1: [u8; 3] = [12, 13, 14];
-    let mut res1 = 0;
+
+    let mut res1: i32 = 0;
+    let mut res2: i32 = 0;
 
     for (i, line) in contents.trim().lines().enumerate() {
         let game_moves: Vec<&str> = line
@@ -29,7 +32,7 @@ fn main() {
             .split(";")
             .collect();
 
-        match game_moves
+        let cubillos = game_moves
             .into_iter()
             .map(|game_move| {
                 let trimmed: [u8; 3] = game_move
@@ -69,18 +72,28 @@ fn main() {
 
                 trimmed
             })
-            .into_iter()
-            .fold(true, |acc, x| {
-                if acc {
-                    x.into_iter().enumerate().all(|(j, y)| y <= contraints1[j])
-                } else {
-                    acc
-                }
-            }) {
-            true => res1 += i + 1,
+            .collect::<Vec<[u8; 3]>>();
+
+        match cubillos.iter().fold(true, |acc, x| {
+            if acc {
+                x.into_iter().enumerate().all(|(j, y)| y <= &contraints1[j])
+            } else {
+                acc
+            }
+        }) {
+            true => res1 += (i as i32) + 1,
             false => (),
         }
+
+        let power = cubillos
+            .iter()
+            .fold([0, 0, 0] as [u8; 3], |acc, [x, y, z]| {
+                [max(acc[0], *x), max(acc[1], *y), max(acc[2], *z)]
+            });
+
+        res2 += power.into_iter().fold(1, |acc, p| acc * (p as i32))
     }
 
-    println!("1. {res1}")
+    println!("1. {res1}");
+    println!("2. {res2}")
 }
