@@ -1,1 +1,3 @@
-# aoc2323
+# Advent of Code 2023
+
+> `:3`
