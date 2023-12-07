@@ -1,6 +1,7 @@
 use std::cmp::min;
 use std::env;
 use std::fs;
+use std::slice::Chunks;
 use std::time::Instant;
 use tokio::task::JoinSet;
 
@@ -103,7 +104,7 @@ async fn main() {
     let mut children: JoinSet<u64> = JoinSet::new();
     let fork_start = Instant::now();
 
-    for seed in seeds.clone().chunks(2) {
+    for (i, seed) in seeds.clone().chunks(2).enumerate() {
         let x = seed[0];
         let y = seed[1];
 
@@ -114,7 +115,9 @@ async fn main() {
             y as usize
         });
 
-        for c in chunks {
+        let l = chunks.len();
+
+        for (j, c) in chunks.enumerate() {
             let moved_maps = maps.clone();
             let chunk = Vec::from(c);
 
@@ -131,7 +134,10 @@ async fn main() {
                 let duration = start.elapsed();
 
                 println!(
-                    "task finished for ({}, {}, {}) with value {} in {:?}",
+                    "seed {} task {} / {} finished for ({}, {}, {}) with value {} in {:?}",
+                    i + 1,
+                    j + 1,
+                    l,
                     first,
                     last,
                     last - first,
